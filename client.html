@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<h2>WebSocket Test</h2>
+<div id="output"></div>
+<div>
+    <input type="text" id="myInput"/>
+    <button onclick="buttonSend()" id="myBtn">Kirim</button>
+</div>
+<script>
+    const wsUri = "ws://127.0.0.1:3000";
+    const output = document.querySelector("#output");
+    const websocket = new WebSocket(wsUri);
+
+    const input = document.getElementById("myInput");
+
+    input.addEventListener("keypress", function (event) {
+        // If the user presses the "Enter" key on the keyboard
+        if (event.key === "Enter") {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Trigger the button element with a click
+            document.getElementById("myBtn").click();
+        }
+    });
+
+
+
+    function writeToScreen(message) {
+        output.insertAdjacentHTML("afterbegin", `<p>${message}</p>`);
+    }
+
+    function sendMessage(message) {
+        writeToScreen(`SENT: ${message}`);
+        websocket.send(message);
+    }
+
+    function buttonSend() {
+        const message = document.getElementById("myInput").value
+        websocket.send(message)
+    }
+
+    websocket.onopen = (e) => {
+        writeToScreen("CONNECTED");
+        sendMessage("ping");
+    };
+
+    websocket.onclose = (e) => {
+        writeToScreen("DISCONNECTED");
+        clearInterval(pingInterval);
+    };
+
+    websocket.onmessage = (e) => {
+        console.log(e)
+        writeToScreen(`RECEIVED: ${e.data}`);
+    };
+
+    websocket.onerror = (e) => {
+        writeToScreen(`ERROR: ${e.data}`);
+    };
+</script>
